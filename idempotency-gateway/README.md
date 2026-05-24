@@ -18,6 +18,7 @@ Architecture Diagram
 Idempotency Gateway Architecture
 
 Setup Instructions Fork Repository into your GitHub account.
+
 Install Java JDK (version 21 or 25).
 
 Install Maven.
@@ -43,14 +44,20 @@ Different body → 409 Conflict / 422 Unprocessable Entity.
 
 In-flight → waits, returns same result.
 
-User Stories & Acceptance Criteria User Story 1: Happy path.
+User Stories & Acceptance Criteria: 
+
+User Story 1: Happy path.
+
 User Story 2: Duplicate attempt.
 
 User Story 3: Same key, different body.
 
 Bonus User Story: In-flight duplicate.
 
-Design Decisions Storage Choice: Redis/SQLite/Map for caching responses.
+Design Decisions Storage Choice: 
+
+Redis/SQLite/Map for caching responses.
+
 Hashing: Compare payloads for fraud check.
 
 Locking: Prevent race conditions.
@@ -58,13 +65,53 @@ Locking: Prevent race conditions.
 Developer’s Choice Feature Audit Logging: Log duplicate attempts (timestamp, key, client IP).
 Purpose: Detect retry patterns, prevent abuse, improve monitoring.
 
-Pre-Submission Checklist Repo is Public.
-Clean unnecessary files.
+Pre-Submission Checklist:
+-Repo is Public.
 
-Server runs without crash.
+-Clean unnecessary files.
 
-README replaced with documentation.
+-Server runs without crash.
 
-Diagram included.
+-README replaced with documentation.
 
-Multiple commits with clear messages.
+-Diagram included.
+
+-Multiple commits with clear messages.
+
+**API Documentation**
+
+ POST /process-payment
+- **Description**: Processes a payment request and ensures idempotency using the `Idempotency-Key` header.
+
+- **Headers**:
+  - `Idempotency-Key: <unique-string>` (required)
+
+- **Request Body**:
+  {
+    "amount": 1000,
+    "currency": "RWF",
+    "method": "MOMO"
+  }
+Response (First Request):
+
+{
+  "status": "success",
+  "transactionId": "abc123",
+  "message": "Charged 1000 RWF"
+}
+Response (Duplicate Request):
+
+
+{
+  "status": "success",
+  "transactionId": "abc123",
+  "message": "Charged 1000 RWF"
+}
+Header: X-Cache-Hit: true
+
+Error Case (Fraud/Error Check):
+
+{
+  "error": "Idempotency-Key reuse detected with different payload."
+}
+Status: 400 Bad Request
