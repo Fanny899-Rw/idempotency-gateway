@@ -114,4 +114,16 @@ Error Case (Fraud/Error Check):
 {
   "error": "Idempotency-Key reuse detected with different payload."
 }
-Status: 400 Bad Request
+Status: 400 Bad Request. 
+
+## Design Decisions
+
+- **Framework Choice (Spring Boot)**: I chose Spring Boot because it provides fast setup, dependency injection, and built-in REST API support. This makes building an idempotency gateway quick and reliable.
+
+- **Idempotency Implementation (Redis)**: For the prototype, I used a HashMap to store transaction states in memory. In a production environment, Redis or a database would be used to ensure scalability and persistence.
+
+- **Error Handling**: I implemented `@ControllerAdvice` and `ResponseEntity` to standardize error responses. This ensures that developers receive clear and consistent messages.
+
+- **Security Considerations**: The system detects fraud by rejecting requests that reuse the same Idempotency-Key with different payloads. This prevents replay attacks and ensures transaction integrity.
+
+- **Developer Experience**: The README includes API documentation, setup instructions, and architecture diagrams so that other developers can quickly understand and use the project.
